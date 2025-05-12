@@ -19,37 +19,55 @@ Recursos:
 
 
 */    
+require('dotenv').config();
 
 const axios = require('axios');
 
+
 const getMeasurement = async () => {
-    const response = await axios.get('ruta/v1/s1/e1/resources/measurement');
+    const headers = {
+        'Content-Type': 'application/json',
+        'API-KEY': '895aabdb40874bf6becc33284972ba71'
+    }
+    const response = await axios.get(`${process.env.URL_BASE}/v1/s1/e1/resources/measurement`, {headers: headers});
     return response.data;
 };
 
 const calculateVelocity = (distance, time) => {
-    const velocity = distance / time;
-    return Math.round(velocity);
+    if(distance !== 'failed to measure, try again') {
+        let distanceFormatted = distance.replace('AU', '');
+        let timeFormatted = time.replace('hours', '');
+        const velocity = distanceFormatted / timeFormatted;
+        return Math.round(velocity);
+    } else {
+        return 0;
+    }
 };
 
 const sendSolution = async (velocity) => {
-    const response = await axios.post('ruta/v1/s1/e1/solution', { velocity });
+    const headers = {
+        'Content-Type': 'application/json',
+        'API-KEY': '895aabdb40874bf6becc33284972ba71'
+    }
+    const response = await axios.post(`${process.env.URL_BASE}/v1/s1/e1/solution`, { speed: velocity }, {headers: headers});
     return response.data;
 };
 
-const main = async () => {
-    const measurement = await getMeasurement();
+const e1 = async () => {
+    let measurement = await getMeasurement();
+    
+    while(measurement.distance === 'failed to measure, try again') {
+        measurement = await getMeasurement();
+    }
+
     const velocity = calculateVelocity(measurement.distance, measurement.time);
-
-    console.log(measurement);
-    console.log(velocity);
-
-
-    //const result = await sendSolution(velocity);
-    console.log(result);
+    const result = await sendSolution(velocity);
+    return result;
 };
 
-main();
+module.exports = { e1 };
+
+
 
 
 
