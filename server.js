@@ -6,6 +6,7 @@ const port = 3000;
 const axios = require('axios');
 
 const { e1 } = require('./E1/sonda-silenciosa');
+const { e2 } = require('./E2/kepler-452b');
 
 
 // Middleware para parsing de JSON
@@ -26,10 +27,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Ruta GET
-app.get('/', (req, res) => {
-  res.send('¡Hola mundo!');
-});
 
 // Registry
 app.post('/register', async (req, res) => {
@@ -55,10 +52,22 @@ app.post('/register', async (req, res) => {
   }
 });
 
+//EJERCICIOS
+
+
+// E1
 app.get('/E1', async (req, res) => {
   const response = await e1();
   res.json('Lito');
 });
+
+// E2
+app.get('/E2', async (req, res) => {
+  const response = await e2();
+  res.json('Lito');
+});
+
+
 
 // Iniciar servidor
 app.listen(port, () => {
